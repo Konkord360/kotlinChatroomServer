@@ -5,15 +5,12 @@ import org.exapmle.chatroom.Chatroom
 import org.exapmle.chatroom.Chatter
 import org.exapmle.database.DatabaseService
 import java.net.ServerSocket
-import java.time.LocalDateTime
 
 
 //Next time repair the get message history, add chatter names, add database
-data class Message(val chatterName: String, val message: String, val timestamp: LocalDateTime)
-
 val chatrooms = arrayListOf(Chatroom("global"))
+const val url: String = "jdbc:sqlite:/home/kondzitsu/Projects/Kotlin/kotlinChatroomServer/main.db"
 
-const val url: String = "jdbc:sqlite:/home/kondzitsu/Projects/Kotlin/kotlinChatroomServer/test.db"
 fun main() = runBlocking {
     val server = ServerSocket(8080)
     println("Starting server")
@@ -24,7 +21,7 @@ fun main() = runBlocking {
         println("Waiting for connection...")
 
         val clientConnection = withContext(Dispatchers.IO) { server.accept() }
-        launch (Dispatchers.IO){
+        launch(Dispatchers.IO) {
             chatrooms[0].addChatter(Chatter(clientConnection))
         }
     }

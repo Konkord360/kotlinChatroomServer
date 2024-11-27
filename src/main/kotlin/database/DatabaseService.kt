@@ -1,6 +1,6 @@
 package org.exapmle.database
 
-import org.exapmle.Message
+import org.exapmle.chatroom.Message
 import java.sql.Connection
 import java.sql.DriverManager
 import java.time.LocalDateTime
@@ -11,7 +11,7 @@ class DatabaseService(dbPath: String) {
     private val connection = DriverManager.getConnection(dbPath)!!
 
     fun prepareDatabase(): Connection {
-        if (connection.metaData.getTables(null, null, "MESSAGES", arrayOf("MESSAGES")).next()) {
+        if (!requiredTablesExist()) {
             println("messages table missing")
             connection.createStatement().use { statement ->
                 statement.execute(
@@ -28,6 +28,13 @@ class DatabaseService(dbPath: String) {
         println("Connection to SQLite has been established and Database is ready")
 
         return connection
+    }
+
+    private fun requiredTablesExist(): Boolean {
+        val preparedStatement = connection.prepareStatement("SELECT name FROM sqlite_master WHERE type='table' AND name=?")
+        preparedStatement.setString(1, "MESSAGES")
+
+        return preparedStatement.executeQuery().next()
     }
 
     fun persistMessages(messages: List<Message>) {

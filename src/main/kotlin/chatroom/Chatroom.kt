@@ -2,16 +2,17 @@ package org.exapmle.chatroom
 
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
-import org.exapmle.Message
 import org.exapmle.database.DatabaseService
+import org.exapmle.url
 import java.io.BufferedWriter
 import java.time.LocalDateTime
 
-const val url: String = "jdbc:sqlite:/home/kondzitsu/Projects/Kotlin/kotlinChatroomServer/test.db"
+
+data class Message(val chatterName: String, val message: String, val timestamp: LocalDateTime)
 
 class Chatroom(name: String) {
     private var chatters = mutableSetOf<Chatter>()
-    private var messages = mutableListOf<Message>()
+    var messages = mutableListOf<Message>()
     private val newMessages = arrayListOf<Message>()
     private val databaseService = DatabaseService(url)
 
