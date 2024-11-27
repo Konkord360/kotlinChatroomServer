@@ -5,6 +5,7 @@ target/
 
 ### IntelliJ IDEA ###
 test.db
+main.db
 identifier.sqlite
 .idea
 .idea/modules.xml
