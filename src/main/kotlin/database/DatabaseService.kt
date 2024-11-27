@@ -27,7 +27,7 @@ class DatabaseService(dbPath: String) {
         }
         println("Connection to SQLite has been established and Database is ready")
 
-        return connection;
+        return connection
     }
 
     fun persistMessages(messages: List<Message>) {
