@@ -8,7 +8,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TestClass {
-    private val url: String = "jdbc:sqlite:/home/kondzitsu/Projects/Kotlin/kotlinChatroomServer/test.db"
+    private val url: String = "jdbc:sqlite:./test.db"
     private lateinit var connection: Connection
 
     @BeforeTest

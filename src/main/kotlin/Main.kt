@@ -9,7 +9,7 @@ import java.net.ServerSocket
 
 //Next time repair the get message history, add chatter names, add database
 val chatrooms = arrayListOf(Chatroom("global"))
-const val url: String = "jdbc:sqlite:/home/kondzitsu/Projects/Kotlin/kotlinChatroomServer/main.db"
+const val url: String = "jdbc:sqlite:./main.db"
 
 fun main() = runBlocking {
     val server = ServerSocket(8080)
