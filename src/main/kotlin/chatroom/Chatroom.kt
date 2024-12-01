@@ -11,13 +11,18 @@ import java.time.LocalDateTime
 data class Message(val chatterName: String, val message: String, val timestamp: LocalDateTime)
 
 class Chatroom(name: String) {
-    private var chatters = mutableSetOf<Chatter>()
+    var chatters = mutableSetOf<Chatter>()
     var messages = mutableListOf<Message>()
     private val newMessages = arrayListOf<Message>()
     private val databaseService = DatabaseService(url)
+    var serverUp = true
 
     fun startChatroom() {
         messages.addAll(databaseService.loadChatHistory())
+    }
+
+    fun getChatters(): List<String> {
+       return chatters.map { it.name }
     }
 
     private fun broadcast(author: Chatter, message: String) {
@@ -25,19 +30,22 @@ class Chatroom(name: String) {
             if (chatter.name != author.name) {
                 println("Sending $message to ${chatter.name}")
                 chatter.output.println(message)
+                println("Sending $message to ${chatter.name} sent")
             }
         }
     }
 
-    suspend fun addChatter(chatter: Chatter) = coroutineScope {
+    fun addChatter(chatter: Chatter) {
         chatter.output.println("Welcome to the chatroom! Please provide your username")
-        chatter.name = chatter.inputReader.readLine()
-        println("chatter ${chatter.name} connected")
+        chatter.name = chatter.inputReader.readLine()!!
+        try {
+            println("chatter ${chatter.name} connected")
 
-        chatters.add(chatter)
-        sendChatHistory(chatter)
-        chatter.connection.use {
-            handleClientConnection(chatter)
+            chatters.add(chatter)
+            sendChatHistory(chatter)
+        } catch (e: Exception) {
+           print("Client disconnected")
+            chatters.remove(chatter)
         }
     }
 
@@ -52,25 +60,35 @@ class Chatroom(name: String) {
         this.flush()
     }
 
-    private fun handleClientConnection(chatter: Chatter) {
-        while (true) {
-            val response = chatter.inputReader.readLine()
-            if (response == null) {
-                println("Chatter ${chatter.name} disconnected")
-                chatters.remove(chatter)
-                break
+    fun handleClientConnection(chatter: Chatter) {
+        chatter.connection.use {
+            while (serverUp) {
+               if(!readMessageFromChatter(chatter)) {
+                  break
+               }
             }
-
-            synchronized(messages) {
-                synchronized(newMessages) {
-                    messages.add(Message(chatter.name, response, LocalDateTime.now()))
-                    newMessages.add(Message(chatter.name, response, LocalDateTime.now()))
-                }
-            }
-
-            println(response)
-            broadcast(chatter, response)
         }
+    }
+
+    fun readMessageFromChatter(chatter: Chatter): Boolean {
+        print("reading from ${chatter.name}")
+        val response = chatter.inputReader.readLine()
+        if (response == null) {
+            println("Chatter ${chatter.name} disconnected")
+            chatters.remove(chatter)
+            return false
+        }
+
+        synchronized(messages) {
+            synchronized(newMessages) {
+                messages.add(Message(chatter.name, response, LocalDateTime.now()))
+                newMessages.add(Message(chatter.name, response, LocalDateTime.now()))
+            }
+        }
+
+        println(response)
+        broadcast(chatter, response)
+        return true
     }
 
     private fun persistNewMessages() {

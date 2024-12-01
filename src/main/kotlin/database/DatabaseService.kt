@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter
 
 class DatabaseService(dbPath: String) {
     private val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-    private val connection = DriverManager.getConnection(dbPath)!!
+    val connection = DriverManager.getConnection(dbPath)!!
 
     fun prepareDatabase(): Connection {
         if (!requiredTablesExist()) {
