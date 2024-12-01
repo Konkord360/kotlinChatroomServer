@@ -1,9 +1,8 @@
-package org.exapmle.chatroom
+package org.example.chatroom
 
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
-import org.exapmle.database.DatabaseService
-import org.exapmle.url
+import org.example.database.DatabaseService
+import org.example.url
 import java.io.BufferedWriter
 import java.time.LocalDateTime
 
@@ -22,7 +21,7 @@ class Chatroom(name: String) {
     }
 
     fun getChatters(): List<String> {
-       return chatters.map { it.name }
+        return chatters.map { it.name }
     }
 
     private fun broadcast(author: Chatter, message: String) {
@@ -44,7 +43,7 @@ class Chatroom(name: String) {
             chatters.add(chatter)
             sendChatHistory(chatter)
         } catch (e: Exception) {
-           print("Client disconnected")
+            print("Client disconnected")
             chatters.remove(chatter)
         }
     }
@@ -63,9 +62,9 @@ class Chatroom(name: String) {
     fun handleClientConnection(chatter: Chatter) {
         chatter.connection.use {
             while (serverUp) {
-               if(!readMessageFromChatter(chatter)) {
-                  break
-               }
+                if(!readMessageFromChatter(chatter)) {
+                    break
+                }
             }
         }
     }

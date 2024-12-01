@@ -1,4 +1,4 @@
-package org.exapmle.chatroom
+package org.example.chatroom
 
 import java.io.BufferedReader
 import java.io.BufferedWriter

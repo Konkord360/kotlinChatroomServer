@@ -1,6 +1,5 @@
-package org.exapmle.database
-
-import org.exapmle.chatroom.Message
+package org.example.database
+import org.example.chatroom.Message
 import java.sql.Connection
 import java.sql.DriverManager
 import java.time.LocalDateTime

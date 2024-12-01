@@ -1,9 +1,9 @@
-package org.exapmle
+package org.example
 
 import kotlinx.coroutines.*
-import org.exapmle.chatroom.Chatroom
-import org.exapmle.chatroom.Chatter
-import org.exapmle.database.DatabaseService
+import org.example.chatroom.Chatroom
+import org.example.chatroom.Chatter
+import org.example.database.DatabaseService
 import java.net.ServerSocket
 
 

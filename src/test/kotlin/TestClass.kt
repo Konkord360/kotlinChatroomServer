@@ -1,9 +1,8 @@
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.exapmle.*
-import org.exapmle.chatroom.Chatroom
-import org.exapmle.database.DatabaseService
+import org.example.*
+import org.example.chatroom.Chatroom
+import org.example.database.DatabaseService
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.InputStreamReader
@@ -80,7 +79,7 @@ class TestClass {
         }
 
     @Test
-    fun `aaa`() = runBlocking {
+    fun `with multiple chatters online, ones message is broadcast to all but the broadcaster`() = runBlocking {
         val chatroom = Chatroom("test")
         val chatrooms = arrayListOf(chatroom)
         val server = Server(chatrooms)
@@ -88,32 +87,59 @@ class TestClass {
 
         Socket("127.0.0.1", 8080).use { client ->
             Socket("127.0.0.1", 8080).use { client2 ->
-                val output = BufferedWriter(OutputStreamWriter(client.getOutputStream()))
-                val output2 = BufferedWriter(OutputStreamWriter(client2.getOutputStream()))
+                Socket("127.0.0.1", 8080).use { client3 ->
+                    val output = BufferedWriter(OutputStreamWriter(client.getOutputStream()))
+                    val output2 = BufferedWriter(OutputStreamWriter(client2.getOutputStream()))
+                    val output3 = BufferedWriter(OutputStreamWriter(client3.getOutputStream()))
 
-                output.println("Kondzitsu")
-                output2.println("Malario")
+                    val inputChatter1 = BufferedReader(InputStreamReader(client.getInputStream()))
+                    val inputChatter2 = BufferedReader(InputStreamReader(client2.getInputStream()))
+                    val inputChatter3 = BufferedReader(InputStreamReader(client3.getInputStream()))
 
-                val job = launch {
-                    server.acceptChatter()
+                    output.println("Kondzitsu")
+                    output2.println("Malario")
+                    output3.println("Konradio")
+
+                    val job = launch {
+                        server.acceptChatter()
+
+                    }
+                    val job2 = launch {
+                        server.acceptChatter()
+                    }
+                    val job3 = launch {
+                        server.acceptChatter()
+                    }
+
+                    job.join()
+                    job2.join()
+                    job3.join()
+                    val chatters = chatroom.chatters
+
+                    val chat1 = launch {
+                        chatroom.readMessageFromChatter(chatters.elementAt(0))
+                    }
+                    output.println("testMessage")
+                    chat1.join()
+
+                    assertEquals(1, chatroom.messages.size)
+                    //pleaseProvideName
+                    inputChatter1.readLine()
+                    inputChatter2.readLine()
+                    inputChatter3.readLine()
+                    //chatHistory
+                    inputChatter1.readLine()
+                    inputChatter2.readLine()
+                    inputChatter3.readLine()
+                    //broadcasted message
+                    var broadcastedMessageBack = inputChatter2.readLine()
+                    var broadcastedMessageBack2 = inputChatter3.readLine()
+                    var broadcasterMessageBack = client.getInputStream().available()
+
+                    assertEquals("testMessage", broadcastedMessageBack)
+                    assertEquals("testMessage", broadcastedMessageBack2)
+                    assertEquals(0, broadcasterMessageBack)
                 }
-                val job2 = launch {
-                    server.acceptChatter()
-                }
-
-                job.join()
-                job2.join()
-                val chatters = chatroom.chatters
-
-                val chat1 = launch {
-                    chatroom.readMessageFromChatter(chatters.elementAt(0))
-                }
-//                val chat2 = launch {
-//                    chatroom.handleClientConnection(chatter)
-//                }
-                output.println("testMessage")
-                chat1.join()
-                assertEquals(1, chatroom.messages.size)
             }
         }
     }
